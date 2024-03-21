@@ -18,7 +18,7 @@
     "server": "node server", 
     "dev": "npm-run-all --parallel server start" 
   },
-  "proxy": "http://localhost:5000", 
+  "proxy": "https://spotify-top-items-18b9b4ba5a53.herokuapp.com/", 
   "browserslist": {
     "production": [
       ">0.2%",
