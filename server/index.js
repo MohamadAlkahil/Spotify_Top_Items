@@ -8,7 +8,8 @@ dotenv.config();
 
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/auth/callback'; // Update with your deployed app's URL
+const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'https://spotify-top-items-18b9b4ba5a53.herokuapp.com/auth/callback';
+
 
 let access_token = '';
 let refresh_token = '';
