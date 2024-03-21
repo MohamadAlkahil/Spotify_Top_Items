@@ -108,6 +108,13 @@ app.use((req, res, next) => {
   }
 });
 
+// Middleware to set the Host header
+app.use((req, res, next) => {
+  req.headers.host = 'https://spotify-top-items-18b9b4ba5a53.herokuapp.com/'; // Replace with your actual deployed app's hostname
+  next();
+});
+
+
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
