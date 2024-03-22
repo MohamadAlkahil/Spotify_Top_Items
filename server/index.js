@@ -8,7 +8,8 @@ dotenv.config();
 
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'https://spotify-top-items-18b9b4ba5a53.herokuapp.com/auth/callback';
+const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/auth/callback';
+const spotify_frontend_uri = process.env.SPOTIFY_FRONTEND_URI || 'http://localhost:3000';
 
 
 let access_token = '';
@@ -61,13 +62,18 @@ app.get('/auth/callback', (req, res) => {
 
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-      access_token = body.access_token;
-      refresh_token = body.refresh_token;
-      token_expiry = Date.now() + (body.expires_in * 1000); // Convert seconds to milliseconds
-      res.redirect('/');
+      const access_token = body.access_token;
+      const refresh_token = body.refresh_token;
+      
+      // Redirect the user to the frontend URL with access token as a query parameter
+      res.redirect(`${spotify_frontend_uri}/?access_token=${access_token}&refresh_token=${refresh_token}`);
+    } else {
+      // Handle authentication failure
+      res.redirect('/login'); // Redirect to login page or show an error message
     }
   });
 });
+
 
 app.get('/auth/token', (req, res) => {
   res.json({ access_token: access_token });
