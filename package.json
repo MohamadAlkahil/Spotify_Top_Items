@@ -2,6 +2,7 @@
   "name": "Spotify Items",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://spotify-top-items-18b9b4ba5a53.herokuapp.com",
   "dependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
