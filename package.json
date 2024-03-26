@@ -2,7 +2,6 @@
   "name": "Spotify Items",
   "version": "0.1.0",
   "private": true,
-  "proxy": "",
   "dependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

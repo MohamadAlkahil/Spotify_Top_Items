@@ -1,7 +1,9 @@
 const express = require('express');
+const path = require('path');
 const request = require('request');
 const dotenv = require('dotenv');
 
+const app = express();
 const port = process.env.PORT || 5000;
 
 dotenv.config();
@@ -25,7 +27,8 @@ const generateRandomString = function(length) {
   return text;
 };
 
-const app = express();
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/auth/login', (req, res) => {
   const scope = "streaming user-read-email user-read-private user-top-read";
@@ -78,6 +81,7 @@ app.get('/auth/callback', (req, res) => {
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
+
 
 // const express = require('express');
 // const request = require('request');
