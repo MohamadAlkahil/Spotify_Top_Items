@@ -2,15 +2,14 @@ const express = require('express');
 const request = require('request');
 const dotenv = require('dotenv');
 
-const port = process.env.PORT || 5000; // Use process.env.PORT for Heroku deployment
+const port = process.env.PORT || 5000;
 
 dotenv.config();
 
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/auth/callback';
-const spotify_frontend_uri = process.env.SPOTIFY_FRONTEND_URI || 'http://localhost:3000';
-
+const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:5000/auth/callback'; // Adjust the redirect URI
+const spotify_frontend_uri = process.env.SPOTIFY_FRONTEND_URI || 'http://localhost:3000'; // Adjust the frontend URI
 
 let access_token = '';
 let refresh_token = '';
@@ -64,7 +63,7 @@ app.get('/auth/callback', (req, res) => {
     if (!error && response.statusCode === 200) {
       const access_token = body.access_token;
       const refresh_token = body.refresh_token;
-      
+
       // Redirect the user to the frontend URL with access token as a query parameter
       res.redirect(`${spotify_frontend_uri}/?access_token=${access_token}&refresh_token=${refresh_token}`);
     } else {
@@ -74,53 +73,7 @@ app.get('/auth/callback', (req, res) => {
   });
 });
 
-
-app.get('/auth/token', (req, res) => {
-  res.json({ access_token: access_token });
-});
-
-app.get('/auth/logout', (req, res) => {
-  access_token = '';
-  refresh_token = '';
-  token_expiry = 0;
-  res.redirect('https://accounts.spotify.com/logout');
-});
-
-// Middleware to check token expiry and refresh if needed
-app.use((req, res, next) => {
-  if (token_expiry > 0 && Date.now() >= token_expiry) {
-    request.post(
-      'https://accounts.spotify.com/api/token',
-      {
-        form: {
-          grant_type: 'refresh_token',
-          refresh_token: refresh_token,
-          client_id: spotify_client_id,
-          client_secret: spotify_client_secret
-        },
-        json: true
-      },
-      function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-          access_token = body.access_token;
-          token_expiry = Date.now() + (body.expires_in * 1000); // Convert seconds to milliseconds
-          next();
-        } else {
-          res.status(401).json({ error: 'Unauthorized' });
-        }
-      }
-    );
-  } else {
-    next();
-  }
-});
-
-// Middleware to set the Host header
-app.use((req, res, next) => {
-  req.headers.host = 'https://spotify-top-items-18b9b4ba5a53.herokuapp.com/'; // Replace with your actual deployed app's hostname
-  next();
-});
-
+// Add the remaining endpoints, middleware, and server listening here
 
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
