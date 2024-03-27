@@ -1,17 +1,14 @@
 const express = require('express');
-const path = require('path');
 const request = require('request');
 const dotenv = require('dotenv');
 
-const app = express();
 const port = process.env.PORT || 5000;
 
 dotenv.config();
 
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:5000/auth/callback'; // Adjust the redirect URI
-const spotify_frontend_uri = process.env.SPOTIFY_FRONTEND_URI || 'http://localhost:3000'; // Adjust the frontend URI
+const spotify_redirect_uri = SPOTIFY_REDIRECT_URI ||'http://localhost:3000/auth/callback';
 
 let access_token = '';
 let refresh_token = '';
@@ -27,8 +24,7 @@ const generateRandomString = function(length) {
   return text;
 };
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../public')));
+const app = express();
 
 app.get('/auth/login', (req, res) => {
   const scope = "streaming user-read-email user-read-private user-top-read";
@@ -64,23 +60,59 @@ app.get('/auth/callback', (req, res) => {
 
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-      const access_token = body.access_token;
-      const refresh_token = body.refresh_token;
-
-      // Redirect the user to the frontend URL with access token as a query parameter
-      res.redirect(`${spotify_frontend_uri}/?access_token=${access_token}&refresh_token=${refresh_token}`);
-    } else {
-      // Handle authentication failure
-      res.redirect('/login'); // Redirect to login page or show an error message
+      access_token = body.access_token;
+      refresh_token = body.refresh_token;
+      token_expiry = Date.now() + (body.expires_in * 1000); 
+      res.redirect('/');
     }
   });
 });
 
-// Add the remaining endpoints, middleware, and server listening here
+app.get('/auth/token', (req, res) => {
+  res.json({ access_token: access_token });
+});
+
+app.get('/auth/logout', (req, res) => {
+  access_token = '';
+  refresh_token = '';
+  token_expiry = 0;
+  res.redirect('https://accounts.spotify.com/logout');
+});
+
+
+app.use((req, res, next) => {
+  if (token_expiry > 0 && Date.now() >= token_expiry) {
+    request.post(
+      'https://accounts.spotify.com/api/token',
+      {
+        form: {
+          grant_type: 'refresh_token',
+          refresh_token: refresh_token,
+          client_id: spotify_client_id,
+          client_secret: spotify_client_secret
+        },
+        json: true
+      },
+      function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+          access_token = body.access_token;
+          token_expiry = Date.now() + (body.expires_in * 1000); // Convert seconds to milliseconds
+          next();
+        } else {
+          res.status(401).json({ error: 'Unauthorized' });
+        }
+      }
+    );
+  } else {
+    next();
+  }
+});
 
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
+
+
 
 
 // const express = require('express');
