@@ -79,35 +79,6 @@ app.get('/auth/logout', (req, res) => {
   res.redirect('https://accounts.spotify.com/logout');
 });
 
-
-app.use((req, res, next) => {
-  if (token_expiry > 0 && Date.now() >= token_expiry) {
-    request.post(
-      'https://accounts.spotify.com/api/token',
-      {
-        form: {
-          grant_type: 'refresh_token',
-          refresh_token: refresh_token,
-          client_id: spotify_client_id,
-          client_secret: spotify_client_secret
-        },
-        json: true
-      },
-      function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-          access_token = body.access_token;
-          token_expiry = Date.now() + (body.expires_in * 1000); // Convert seconds to milliseconds
-          next();
-        } else {
-          res.status(401).json({ error: 'Unauthorized' });
-        }
-      }
-    );
-  } else {
-    next();
-  }
-});
-
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
