@@ -8,7 +8,7 @@ dotenv.config();
 
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI ||'http://localhost:3000/auth/callback';
+const spotify_redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/auth/callback';
 
 let access_token = '';
 let refresh_token = '';
@@ -111,8 +111,6 @@ app.use((req, res, next) => {
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
-
-
 
 
 // const express = require('express');
